@@ -1,0 +1,7 @@
+.info
+
+node_modules
+.vscode
+*.code-workspace
+
+dist
