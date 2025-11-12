@@ -13,7 +13,7 @@ const funcTools: Tool[] = [
 			properties: {
 				pieceType: {
 					type: 'string',
-					description: "The first letter of the piece's name (lowercase)",
+					description: "The name of the moving piece (without the color)",
 				},
 				sourceSquare: {
 					type: 'string',
@@ -23,8 +23,12 @@ const funcTools: Tool[] = [
 					type: 'string',
 					description: 'The target square',
 				},
+				explanation: {
+					type: 'string',
+					description: 'Short, natural explanation of the move. Must reference sourceSquare and targetSquare.',
+				},
 			},
-			required: ['pieceType', 'sourceSquare', 'targetSquare'],
+			required: ['pieceType', 'sourceSquare', 'targetSquare', 'explanation'],
 			additionalProperties: false
 		},
 	},
