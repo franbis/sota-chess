@@ -1,37 +1,38 @@
-import type { Color } from "chess.js";
-
 import OpenAI from "openai";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 
 import funcTools from "./func_tools";
 import type { FunctionCallData } from "../data/func_call_data";
-import { AIChessPlayer, type AIChessPlayerArgs, type ChessSlotData, type ExplainedMoveArgs } from "./ai";
+import type { AIChessPlayerArgs, ExplainedMoveArgs } from "./ai";
+import { AIChessPlayer } from "./ai";
 import { FunctionCallNotFound } from "../data/errors";
+import type { ChessboardSquareData } from "../data/chess_data";
 
 
 
 interface OpenAIChessPlayerArgs extends AIChessPlayerArgs {
     apiKey: string
 }
+/** AI manager which makes API calls to OpenAI services. */
 class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 	protected client;
 	color;
-	protected ttsModel;
+	protected TTSModel;
 	protected funcCallModel;
 
 
 	constructor({
 		apiKey,
-		ttsModel, funcCallModel,
+		TTSModel: TTSModel, funcCallModel,
 		color='w'
-    }: OpenAIChessPlayerArgs){
+	}: OpenAIChessPlayerArgs){
 		super();
 
 		this.client = new OpenAI({
 			apiKey,
 			dangerouslyAllowBrowser: true
 		});
-		this.ttsModel = ttsModel;
+		this.TTSModel = TTSModel;
 		this.funcCallModel = funcCallModel;
 
 		this.color = color;
@@ -40,7 +41,7 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 
 	protected async explainMove(explanation: string) {
 		const resp = await this.client.audio.speech.create({
-			model: this.ttsModel,
+			model: this.TTSModel,
 			voice: 'alloy',
 			input: explanation,
 			speed: 1.25
@@ -55,7 +56,7 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 	}
 
 
-	async requestMove(board: ChessSlotData[][], explain: boolean = false) {
+	async requestMove(board: ChessboardSquareData[][], explain: boolean = false) {
 		let input: ResponseInput = [
 			{
 				type: 'message',
@@ -86,14 +87,14 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 
 		const item = response.output[0];
 		if (item.type == "function_call") {
-			// Assume there's, at least, the 'explanation' argument.
 			const args: ExplainedMoveArgs = JSON.parse(item.arguments);
+			// Assume the arguments contain the 'explanation' key.
 			const { explanation, ...otherArgs } = args;
 			if (explain) this.explainMove(explanation);
 
 			return {
 				name: item.name,
-				arguments: args
+				arguments: otherArgs
 			} as FunctionCallData;
 		}
 		else {

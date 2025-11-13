@@ -1,8 +1,10 @@
-// Use char codes to allow reverse searching.
-
 import type { Color, PieceSymbol, Square } from "chess.js";
 
-enum PieceNames {
+
+// Algebric notations.
+// Use char codes to allow reverse searching.
+
+enum PieceNotation {
 	PAWN = 112,
 	ROOK = 114,
 	KNIGHT = 110,
@@ -11,8 +13,7 @@ enum PieceNames {
 	KING = 107,
 };
 
-
-enum PieceColors {
+enum ColorNotation {
 	WHITE = 119,
 	BLACK = 98,
 }
@@ -21,6 +22,8 @@ enum PieceColors {
 type CastlingSide = 'k' | 'q';
 
 
+/** A defined version of the construct that 'Chess.board()' returns
+ * as a bidimensional array. */
 type ChessboardSquareData = {
 	square: Square;
 	type: PieceSymbol;
@@ -30,9 +33,9 @@ type ChessboardSquareData = {
 
 
 export {
-    PieceNames,
-    PieceColors,
-
     type CastlingSide,
 	type ChessboardSquareData,
+	
+    PieceNotation,
+    ColorNotation,
 }

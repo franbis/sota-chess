@@ -1,8 +1,9 @@
-import type { Tool } from 'openai/resources/responses/responses.mjs';
+import type { FunctionTool } from "../data/func_call_data";
 
 
 
-const funcTools: Tool[] = [
+
+const funcTools: FunctionTool[] = [
 	{
 		type: 'function',
 		name: 'move',
