@@ -16,4 +16,6 @@ Sometimes these mistakes are pretty funny tho, hence why this project was create
 
 Currently the game is in its prototype phase, it is missing the pawn promotion feature and the AI doesn't know when its king is on check, resulting in the game becoming unplayable the moment you check the AI's king.
 
-If you want to run the game anyway, you have to add your OpenAI API key and the model names in `App.tsx`.
+If you want to run the game anyway, you have to add your *OpenAI* API key and the model names in `App.tsx`.
+
+If you wish the AI to explain their moves using "voice messages", set `explain` to `true` when calling `requestMove()` in `App.tsx`.
