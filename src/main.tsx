@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.js';
 
-import '../../style/index.sass';
+import './style/index.sass';
 
 
 

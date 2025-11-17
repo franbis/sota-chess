@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Chess } from 'chess.js';
-import type { Color, PieceSymbol, Square } from 'chess.js';
+import type { Square } from 'chess.js';
 import { Chessboard, type PieceDropHandlerArgs, type PieceHandlerArgs } from 'react-chessboard';
 
-import { type CastlingSide } from '../data/chess_data';
-import { OpenAIChessPlayer } from '../ai/openai_ai';
-import { type ChessboardSquareData } from "../data/chess_data";
+import type { ChessboardSquareData, CastlingSide } from './script/data/chess_data';
+import { LooseChessManager, type ForceMoveArgs, type MoveArgs } from './script/chess/chess_managers';
+import { OpenAIChessPlayer } from './script/ai/openai_ai';
 
-import '../../style/App.sass';
-import { LooseChessManager, type ForceMoveArgs, type MoveArgs } from '../chess/chess_managers';
-
+import './style/App.sass';
 
 
 
