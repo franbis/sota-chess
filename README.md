@@ -11,3 +11,9 @@ The current *"state of the art"* in the AI scene is AIs that, sometime, make mis
 In some contexts, we can't afford to allow the AI to break those rules. These include a game of chess, for example.
 
 Sometimes these mistakes are pretty funny tho, hence why this project was created.
+
+### How to run?
+
+Currently the game is in its prototype phase, it is missing the pawn promotion feature and the AI doesn't know when its king is on check, resulting in the game becoming unplayable the moment you check the AI's king.
+
+If you want to run the game anyway, you have to add your OpenAI API key and the model names in `App.tsx`.
