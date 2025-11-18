@@ -1,12 +1,14 @@
 import OpenAI from "openai";
 import type { ResponseInput } from "openai/resources/responses/responses.mjs";
 
+import { FunctionCallNotFound } from "../data/errors";
+
 import funcTools from "./func_tools";
 import type { FunctionCallData } from "../data/func_call_data";
 import type { AIChessPlayerArgs, ExplainedMoveArgs } from "./ai";
 import { AIChessPlayer } from "./ai";
-import { FunctionCallNotFound } from "../data/errors";
-import type { ChessboardSquareData } from "../data/chess_data";
+
+import type { ChessboardSquareData } from "../../../shared/types/chess.types";
 
 
 
@@ -40,19 +42,20 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 
 
 	protected async explainMove(explanation: string) {
-		const resp = await this.client.audio.speech.create({
-			model: this.TTSModel,
-			voice: 'alloy',
-			input: explanation,
-			speed: 1.25
-		});
+		// TODO.
+		// const resp = await this.client.audio.speech.create({
+		// 	model: this.TTSModel,
+		// 	voice: 'alloy',
+		// 	input: explanation,
+		// 	speed: 1.25
+		// });
 
-		const arrBuf = await resp.arrayBuffer();
-		const blob = new Blob([arrBuf], { type: 'audio/mpeg' });
-		const url = URL.createObjectURL(blob);
+		// const arrBuf = await resp.arrayBuffer();
+		// const blob = new Blob([arrBuf], { type: 'audio/mpeg' });
+		// const url = URL.createObjectURL(blob);
 
-		const audio = new Audio(url);
-		audio.play();
+		// const audio = new Audio(url);
+		// audio.play();
 	}
 
 

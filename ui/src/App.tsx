@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import type { Color, Square } from 'chess.js';
+import type { Color } from 'chess.js';
 import { Chessboard, type PieceDropHandlerArgs, type PieceHandlerArgs } from 'react-chessboard';
 
-// import type { GameState, Game } from '../../shared/chess/chess_data';
-// import type { ChessboardSquareData, CastlingSide } from './script/data/chess_data';
+import type { GameStateMsgContent } from '../../shared/types/chess.types';
+
 import { RemoteChessManager, type MoveArgs } from './script/chess/chess_managers';
 
 import './style/App.sass';
@@ -12,17 +12,9 @@ import './style/App.sass';
 
 
 function App() {
-	const [gameFEN, setGameFEN] = useState('');
-	// TODO - Rooks tracking for castling.
-	//const [AICastlingRooks, setAICastlingRooks] = useState<Record<CastlingSide, Square> | null>(null);
-
-	const gameManRef = useRef(new RemoteChessManager());
-	const [color, setColor] = useState<Color>('b');
-
-
-	const getGameMan = ()=>{
-		return gameManRef.current
-	};
+	const [gameMan, setGameMan] = useState<RemoteChessManager | null>(null);
+	const [color, setColor] = useState<Color>('w');
+	const [gameState, setGameState] = useState<GameStateMsgContent | null>()
 
 
 	const canDragPiece = ({ isSparePiece, piece, square }: PieceHandlerArgs)=>{
@@ -32,19 +24,19 @@ function App() {
 
 
 	const onPieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs)=>{
-		// Attempt to execute the user's move.
-		// FIXME - Returns a Promise. Should use simulation & replication instead.
-		getGameMan().move({ sourceSquare, targetSquare} as MoveArgs);
+		// Inform the server of the move attempt.
+		gameMan?.move({ sourceSquare, targetSquare} as MoveArgs);
 
-		//return moved;
+		// Simulate the move until the server validates it.
 		return true;
 	};
 
 
 	useEffect(()=>{
-		(async ()=>{
-			getGameMan().createGame({ color });
-		})();
+		setGameMan(() => new RemoteChessManager({
+			onConnect(instance) { instance.createGame({ color }); },
+			onStateChange: setGameState
+		}));
 	}, []);
 
 
@@ -52,7 +44,8 @@ function App() {
 		<div id="chessboard_cont">
 				<Chessboard
 					options={{
-						position: getGameMan()?.state?.fen,
+						// Default to an empty board.
+						position: gameState?.fen ?? '',
 						canDragPiece,
 						onPieceDrop
 					}}

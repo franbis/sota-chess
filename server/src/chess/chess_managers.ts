@@ -1,7 +1,7 @@
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
-import type { CastlingSide } from "../data/chess_data";
+import type { CastlingSide } from "../../../shared/types/chess.types";
 
 
 
@@ -17,8 +17,8 @@ interface ForceMoveArgs {
 }
 
 interface CastleArgs {
-		castlingSide: CastlingSide
-	}
+	castlingSide: CastlingSide
+}
 
 interface ForceCastleArgs extends CastleArgs {}
 

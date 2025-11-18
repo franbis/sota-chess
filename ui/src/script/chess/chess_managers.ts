@@ -1,8 +1,7 @@
-import axios from "axios";
-
 import type { Color, Square } from "chess.js";
 
-import type { GameID, GameState, Game, CreateGameReqArgs } from '../../../../shared/chess/chess_data';
+import type { GameStateMsgContent, Message } from '../../../../shared/types/chess.types';
+import { MessageType } from "../../../../shared/data/chess.data";
 
 
 
@@ -17,49 +16,63 @@ interface MoveArgs {
 }
 
 
+interface RemoteChessManagerArgs {
+    onConnect?: (instance: RemoteChessManager) => void
+    onStateChange?: (state: GameStateMsgContent) => void
+}
 class RemoteChessManager {
-    private id?: GameID;
+    private ws?: WebSocket;
+    private awaitingValidation = false;
 
+    fen?: string;
     color?: Color;
-    state?: GameState;
-    awaitingValidation = false;
+
+
+    constructor({ onConnect, onStateChange }: RemoteChessManagerArgs) {
+        // TODO - Use an externally defined URL.
+        this.ws = new WebSocket('ws://localhost:3000/ws');
+
+        this.ws.onopen = () => onConnect?.(this);
+        
+        this.ws.onmessage = e => {
+            const msg: Message = JSON.parse(String(e.data));
+
+			if (msg.type === MessageType.STATE) {
+				this.fen = msg.content.fen;
+                // TODO.
+                onStateChange?.(msg.content);
+			}
+        };
+    }
 
 
     get turn() {
         if (this.awaitingValidation) return;
-        else return this.state?.fen?.split(' ')[1] as Color | undefined;
+        else return this.fen?.split(' ')[1] as Color | undefined;
     }
 
 
-    async createGame({ color }: CreateGameArgs) {
-        const params: CreateGameReqArgs = {color};
+    createGame({ color }: CreateGameArgs) {
+        if (this.ws?.readyState !== WebSocket.OPEN) return;
 
-        const resp = await axios.post('/game/create', {params});
-        const data = resp.data as Game;
-        this.id = data.id;
-        this.state = data.state;
+        const params: Message = {
+            type: MessageType.CREATE,
+            content: {color}
+        };
 
-        this.color = color;
-
-        return true;
+        this.ws?.send(JSON.stringify(params));
     }
 
 
-    async syncState() {
-        const resp = await axios.get(`/game/state/${this.id}`);
-        if (resp.data)
-            this.state = resp.data as GameState;
-    }
+    move({ sourceSquare, targetSquare }: MoveArgs) {
+        if (this.ws?.readyState !== WebSocket.OPEN) return;
 
+        const params: Message = {
+            type: MessageType.MOVE,
+            content: {sourceSquare, targetSquare}
+        };
 
-    async move({ sourceSquare, targetSquare }: MoveArgs) {
-        this.awaitingValidation = true;
-        const resp = await axios.post(`/game/state/${this.id}`);
-        if (resp.data) {
-            this.awaitingValidation = false;
-            this.state = resp.data as GameState;
-            return true;
-        }
+        this.ws?.send(JSON.stringify(params));
     }
 }
 

@@ -1,74 +1,84 @@
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify from 'fastify';
+import fastifyWebsocket, { type WebSocket as WebSocketWrapper } from '@fastify/websocket';
 
-import type { GameState, Game, ReqGameStateReqArgs, CreateGameReqArgs, MoveReqArgs } from '../../shared/chess/chess_data';
+import type { ChessboardSquareData, Message, MoveMsgContent } from '../../shared/types/chess.types';
+import { MessageType } from '../../shared/data/chess.data';
+
+import { LooseChessManager, type ForceMoveArgs } from './chess/chess_managers';
+import { OpenAIChessPlayer } from './ai/openai_ai';
 
 
 
-const server: FastifyInstance = Fastify({ logger: true });
+const app = Fastify({ logger: true });
+
+app.register(fastifyWebsocket);
 
 
-server.post<{
-	Params: CreateGameReqArgs,
-	Reply: Game
-}>('/game/create', async (request, reply) => {
-	return {
-		id: `TODO ${request.params.color}`,
-		state: {
-			fen: 'test',
-			check: 'w',
-			checkmate: false
+let gameMan: LooseChessManager;
+let ai: OpenAIChessPlayer;
+
+
+function sendGameState(connection: WebSocketWrapper) {
+	const msg: Message = {
+		type: MessageType.STATE,
+		content: {
+			fen: gameMan.game.fen(),
+			isCheck: gameMan.game.isCheck(),
+			isCheckmate: gameMan.game.isCheckmate()
 		}
 	};
-});
+	connection.send(JSON.stringify(msg));
+}
 
 
-server.get<{
-	Params: ReqGameStateReqArgs,
-	Reply: GameState
-}>('/game/state/:id', async (request, reply) => {
-	const params = request.params;
+app.register(async function (fastify) {
+	fastify.get('/ws', { websocket: true }, (conn, req) => {
+		conn.on('message', (rawData) => {
+			const msg: Message = JSON.parse(String(rawData));
 
-	return {
-		fen: `TEST ${params.id}`,
-		check: 'w',
-		checkmate: false
-	};
-});
+			if (msg.type === MessageType.CREATE) {
+				gameMan = new LooseChessManager();
+				sendGameState(conn);
+				ai = new OpenAIChessPlayer({
+					apiKey: 'TODO',
+					TTSModel: 'TODO',
+					funcCallModel: 'TODO',
+					color: 'b'
+				});
+			}
 
+			if (msg.type === MessageType.MOVE) {
+				const moved = gameMan.move({
+					sourceSquare: msg.content.sourceSquare,
+					targetSquare: msg.content.targetSquare
+				});
+				sendGameState(conn);
 
-server.post<{
-	Params: MoveReqArgs,
-	Reply: GameState
-}>('/game/move', async (request, reply) => {
-	
-	// if (moved) {
-	// 	updateFEN();
+				if (moved) {
+					// The user moved. It's the AI's turn, request a move.
+					(async ()=>{
+						const data = await ai.requestMove(gameMan.game.board() as ChessboardSquareData[][]);
+						if (data.name == 'move') {
+							// The piece name may not be a valid piece symbol, interpret it.
+							data.arguments.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
+							gameMan.forceMove(data.arguments as ForceMoveArgs);
+						}
+						sendGameState(conn);
+					})();
+				}
+			}
 
-	// 	// The user moved. It's the AI's turn, request a move.
-	// 	(async ()=>{
-	// 		const data = await aiRef.current.requestMove(getGame().board() as ChessboardSquareData[][]);
-	// 		if (data.name == "move") {
-	// 			// The piece name may not be a valid piece symbol, interpret it.
-	// 			data.arguments.pieceType = aiRef.current.pieceNameToSymbol(data.arguments.pieceType);
-	// 			getGameMan().forceMove(data.arguments as ForceMoveArgs);
-	// 		}
-	// 		updateFEN();
-	// 	})();
-	// }
-
-	return {
-		fen: `TODO ${request.params.sourceSquare} ${request.params.targetSquare}`,
-		check: 'w',
-		checkmate: false
-	};
+		});
+	});
 });
 
 
 const start = async () => {
 	try {
-		await server.listen({ port: 3000 });
+		await app.ready();
+		await app.listen({ port: 3000 });
 	} catch (err) {
-		server.log.error(err);
+		app.log.error(err);
 		process.exit(1);
 	}
 };

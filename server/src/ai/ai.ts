@@ -1,6 +1,7 @@
 import type { Color, PieceSymbol } from "chess.js";
 
-import { ColorNotation, PieceNotation, type ChessboardSquareData } from "../data/chess_data";
+import { ColorNotation, PieceNotation } from "../../../shared/data/chess.data";
+import type { ChessboardSquareData } from "../../../shared/types/chess.types";
 import type { FunctionCallData } from "../data/func_call_data";
 import { InvalidPieceSymbol } from "../data/errors";
 
