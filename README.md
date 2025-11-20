@@ -14,10 +14,8 @@ Sometimes these mistakes are pretty funny tho, hence why this project was create
 
 ### How to run?
 
-Currently the game is in its prototype phase, it is missing the pawn promotion feature and the AI doesn't know when its king is on check, resulting in the game becoming unplayable the moment you check the AI's king.
+Currently the game is in its prototype phase, it is missing the pawn promotion feature and the AI doesn't know when its king is in check, resulting in the game becoming unplayable the moment you check the AI's king.
 
-If you want to run the game anyway, you have to add your *OpenAI* API key and the model names in `App.tsx`.
+If you want to run the game anyway, you have to add your *OpenAI* API key and the model names in `server.tsx`.
 <br>
 **NOTE**: If you want *ChatGPT 5* capabilities without long delays from from reasoning, you can use *ChatGPT 5.1*, which has `reasoning` disabled by default.
-
-If you wish the AI to explain their moves using "voice messages", set `explain` to `true` when calling `requestMove()` in `App.tsx`.
