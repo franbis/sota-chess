@@ -102,7 +102,9 @@ class RemoteChessManager {
         }
 		this.updateGameState({
             fen: this.game.fen(),
-            lastMove: {sourceSquare, targetSquare}
+            lastMove: {sourceSquare, targetSquare},
+            isCheck: this.game.isCheck(),
+            isCheckmate: this.game.isCheckmate()
         });
 
         const params: Message = {

@@ -28,8 +28,16 @@ const funcTools: FunctionTool[] = [
 					type: 'string',
 					description: 'Short, natural explanation of the move. Must reference sourceSquare and targetSquare.',
 				},
+				isCheck: {
+					type: 'boolean',
+					description: "True if the opponent's king is in check.",
+				},
+				isCheckmate: {
+					type: 'boolean',
+					description: "True if the opponent lost by checkmate.",
+				},
 			},
-			required: ['pieceType', 'sourceSquare', 'targetSquare', 'explanation'],
+			required: ['pieceType', 'sourceSquare', 'targetSquare', 'explanation', 'isCheck', 'isCheckmate'],
 			additionalProperties: false
 		},
 	},

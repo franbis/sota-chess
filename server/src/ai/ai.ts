@@ -8,8 +8,10 @@ import { InvalidPieceSymbol } from "../data/errors";
 
 
 /** Chess move function call arguments with an explanation of intent. */
-interface ExplainedMoveArgs {
-	explanation: string
+interface AIMoveArgs {
+	explanation: string,
+	isCheck: boolean,
+	isCheckmate: boolean,
 	[k: string]: any
 }
 
@@ -90,7 +92,7 @@ abstract class AIChessPlayer<T> {
 
 
 export {
-	type ExplainedMoveArgs,
+	type AIMoveArgs,
 	type AIChessPlayerArgs,
 
 	AIChessPlayer,
