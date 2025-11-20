@@ -6,6 +6,9 @@ import { MessageType } from '../../shared/data/chess.data';
 
 import { LooseChessManager, type ForceMoveArgs } from './chess/chess_managers';
 import { OpenAIChessPlayer } from './ai/openai_ai';
+import type { ExplainedMoveArgs } from './ai/ai';
+
+import { arrBuffToB64 } from '../../shared/script/utils/b64_utils';
 
 
 
@@ -25,6 +28,22 @@ function sendGameState(connection: WebSocketWrapper) {
 			fen: gameMan.game.fen(),
 			isCheck: gameMan.game.isCheck(),
 			isCheckmate: gameMan.game.isCheckmate()
+		}
+	};
+	connection.send(JSON.stringify(msg));
+}
+
+
+function sendExplanationVM(
+	connection: WebSocketWrapper,
+	explanation: string,
+	audioBuffer: ArrayBuffer
+) {
+	const msg: Message = {
+		type: MessageType.EXPLANATION,
+		content: {
+			explanation,
+			audioBufferB64: arrBuffToB64(audioBuffer)
 		}
 	};
 	connection.send(JSON.stringify(msg));
@@ -53,18 +72,28 @@ app.register(async function (fastify) {
 					sourceSquare: msg.content.sourceSquare,
 					targetSquare: msg.content.targetSquare
 				});
-				sendGameState(conn);
 
 				if (moved) {
-					// The user moved. It's the AI's turn, request a move.
+					sendGameState(conn);
+
+					// It's the AI's turn now, request a move.
 					(async ()=>{
 						const data = await ai.requestMove(gameMan.game.board() as ChessboardSquareData[][]);
+						// Assume the arguments contain the 'explanation' key.
+						const { explanation, ...otherArgs } = data.arguments as ExplainedMoveArgs;
+
 						if (data.name == 'move') {
 							// The piece name may not be a valid piece symbol, interpret it.
-							data.arguments.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
+							otherArgs.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
 							gameMan.forceMove(data.arguments as ForceMoveArgs);
+							sendGameState(conn);
+							
+							sendExplanationVM(
+								conn,
+								explanation,
+								await ai.genMoveExplanationVM(explanation)
+							)
 						}
-						sendGameState(conn);
 					})();
 				}
 			}

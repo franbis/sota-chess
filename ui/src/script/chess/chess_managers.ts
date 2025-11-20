@@ -3,6 +3,8 @@ import { Chess, type Color, type Square } from "chess.js";
 import type { GameStateMsgContent, Message } from '../../../../shared/types/chess.types';
 import { MessageType } from "../../../../shared/data/chess.data";
 
+import { b64ToArrBuff } from '../../../../shared/script/utils/b64_utils';
+
 
 
 interface CreateGameArgs {
@@ -40,7 +42,17 @@ class RemoteChessManager {
             const msg: Message = JSON.parse(String(e.data));
 
 			if (msg.type === MessageType.STATE) {
-				this.updateGame(msg.content.fen);
+				this.updateGameState(msg.content.fen);
+			}
+
+			if (msg.type === MessageType.EXPLANATION) {
+                const arrBuff = b64ToArrBuff(msg.content.audioBufferB64);
+
+                const blob = new Blob([arrBuff], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+
+                const audio = new Audio(url);
+                audio.play();
 			}
         };
     }
@@ -49,7 +61,7 @@ class RemoteChessManager {
     createGame({ color }: CreateGameArgs) {
         if (this.ws?.readyState !== WebSocket.OPEN) return;
         
-		this.updateGame();
+		this.updateGameState();
 
         const params: Message = {
             type: MessageType.CREATE,
@@ -59,10 +71,12 @@ class RemoteChessManager {
     }
 
 
-    updateGame(fen?: string) {
-        this.game = new Chess(fen);
+    updateGameState(fen?: string) {
+        // 'skipValidation' must be 'true', otherwise no moves can be done
+        // if there are invalid positions or pieces.
+		this.game = new Chess(fen, {skipValidation: true});
         this._onStateChange?.(this.game);
-    }
+	}
 
 
     move({ sourceSquare, targetSquare }: MoveArgs) {
@@ -81,7 +95,7 @@ class RemoteChessManager {
             // The move was invalid, don't contact the server.
             return false;
         }
-		this.updateGame(this.game?.fen());
+		this.updateGameState(this.game?.fen());
 
         const params: Message = {
             type: MessageType.MOVE,

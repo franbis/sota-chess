@@ -25,6 +25,11 @@ interface GameState {
 
 interface GameStateMsgContent extends GameState {}
 
+interface MoveExplanationMsgContent {
+	explanation: string,
+	audioBufferB64: string
+}
+
 interface CreateGameMsgContent {
     color: Color
 }
@@ -39,9 +44,10 @@ interface CastleMsgContent {
 }
 
 type Message =
-	// Server.
+	// Server to client.
     | {type: typeof MessageType.STATE, content: GameStateMsgContent}
-	// Client.
+    | {type: typeof MessageType.EXPLANATION, content: MoveExplanationMsgContent}
+	// Client to server.
     | {type: typeof MessageType.CREATE, content: CreateGameMsgContent}
     | {type: typeof MessageType.MOVE, content: MoveMsgContent}
     | {type: typeof MessageType.CASTLE, content: CastleMsgContent}

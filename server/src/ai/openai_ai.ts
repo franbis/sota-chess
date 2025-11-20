@@ -41,25 +41,20 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 	}
 
 
-	protected async explainMove(explanation: string) {
-		// TODO.
-		// const resp = await this.client.audio.speech.create({
-		// 	model: this.TTSModel,
-		// 	voice: 'alloy',
-		// 	input: explanation,
-		// 	speed: 1.25
-		// });
+	async genMoveExplanationVM(explanation: string) {
+		const resp = await this.client.audio.speech.create({
+			// TODO - Externalize hardcoded settings.
+			model: this.TTSModel,
+			voice: 'alloy',
+			input: explanation,
+			speed: 1.25
+		});
 
-		// const arrBuf = await resp.arrayBuffer();
-		// const blob = new Blob([arrBuf], { type: 'audio/mpeg' });
-		// const url = URL.createObjectURL(blob);
-
-		// const audio = new Audio(url);
-		// audio.play();
+		return await resp.arrayBuffer();
 	}
 
 
-	async requestMove(board: ChessboardSquareData[][], explain: boolean = false) {
+	async requestMove(board: ChessboardSquareData[][]) {
 		let input: ResponseInput = [
 			{
 				type: 'message',
@@ -91,13 +86,9 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 		const item = response.output[0];
 		if (item.type == "function_call") {
 			const args: ExplainedMoveArgs = JSON.parse(item.arguments);
-			// Assume the arguments contain the 'explanation' key.
-			const { explanation, ...otherArgs } = args;
-			if (explain) this.explainMove(explanation);
-
 			return {
 				name: item.name,
-				arguments: otherArgs
+				arguments: args
 			} as FunctionCallData;
 		}
 		else {

@@ -31,9 +31,9 @@ abstract class AIChessPlayer<T> {
 
 
 	/** Request an AI-generated voice message for a move explanation. */
-	protected abstract explainMove(explanation: string): void
+	abstract genMoveExplanationVM(explanation: string): void
 	/** Request the AI to play a move based on the board's state. */
-	abstract requestMove(board: ChessboardSquareData[][], explain: boolean): Promise<FunctionCallData>
+	abstract requestMove(board: ChessboardSquareData[][]): Promise<FunctionCallData>
 
 
 	/**

@@ -18,9 +18,10 @@ enum ColorNotation {
 // Define literal string rather than an enum as coercion would be required
 // when parsing the latter from a JSON string.
 const MessageType = {
-    // Server.
+    // Server to client.
     STATE: 'state',
-    // Client.
+    EXPLANATION: 'explanation',
+    // Client to server.
     CREATE: 'create',
     RESUME: 'resume',
     MOVE: 'move',
