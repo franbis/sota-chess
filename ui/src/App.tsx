@@ -47,6 +47,9 @@ function App() {
 				const squares = [
 					...boardContRef.current.querySelectorAll('div[data-square]')
 				] as HTMLDivElement[];
+				const kings = [
+					...boardContRef.current.querySelectorAll('div[data-piece$="K"]')
+				] as HTMLDivElement[];
 
 			if (gameState?.lastMove) {
 				// Toggle styling based on the last move squares.
@@ -57,6 +60,13 @@ function App() {
 					else
 						s.classList.remove('last_move');
 				}
+			}
+
+			for (const k of kings) {
+				if (gameMan?.checkedColor === k.dataset.piece?.charAt(0))
+					k.classList.add('checked');
+				else
+					k.classList.remove('checked');
 			}
 		}
 	}, [boardContRef.current, gameState]);

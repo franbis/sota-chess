@@ -58,6 +58,11 @@ class RemoteChessManager {
     }
 
 
+    get checkedColor() {
+        return this.game?.isCheck() ? this.game?.turn() : null;
+    }
+
+
     createGame({ color }: CreateGameArgs) {
         if (this.ws?.readyState !== WebSocket.OPEN) return;
         
