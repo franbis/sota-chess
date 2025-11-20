@@ -1,6 +1,7 @@
 import type { Color, PieceSymbol } from "chess.js";
 
-import { ColorNotation, PieceNotation, type ChessboardSquareData } from "../data/chess_data";
+import { ColorNotation, PieceNotation } from "../../../shared/data/chess.data";
+import type { ChessboardSquareData } from "../../../shared/types/chess.types";
 import type { FunctionCallData } from "../data/func_call_data";
 import { InvalidPieceSymbol } from "../data/errors";
 
@@ -30,9 +31,9 @@ abstract class AIChessPlayer<T> {
 
 
 	/** Request an AI-generated voice message for a move explanation. */
-	protected abstract explainMove(explanation: string): void
+	abstract genMoveExplanationVM(explanation: string): void
 	/** Request the AI to play a move based on the board's state. */
-	abstract requestMove(board: ChessboardSquareData[][], explain: boolean): Promise<FunctionCallData>
+	abstract requestMove(board: ChessboardSquareData[][]): Promise<FunctionCallData>
 
 
 	/**

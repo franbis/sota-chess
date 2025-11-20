@@ -1,7 +1,7 @@
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
-import type { CastlingSide } from "../data/chess_data";
+import type { CastlingSide } from "../../../shared/types/chess.types";
 
 
 
@@ -17,8 +17,8 @@ interface ForceMoveArgs {
 }
 
 interface CastleArgs {
-		castlingSide: CastlingSide
-	}
+	castlingSide: CastlingSide
+}
 
 interface ForceCastleArgs extends CastleArgs {}
 
@@ -53,9 +53,7 @@ class LooseChessManager {
 				to: targetSquare
 			});
 			if (m) {
-				// 'skipValidation' must be 'true', otherwise no moves can be done
-				// if there are invalid positions or pieces.
-				this.updateGameState(true);
+				this.updateGameState();
 			}
 
 			return Boolean(m);
@@ -85,7 +83,7 @@ class LooseChessManager {
 			//game['_incPositionCount']();
 			moved = this.triggerNextTurn();
 
-			this.updateGameState(true);
+			this.updateGameState();
 		}
 
 		return moved;
@@ -151,8 +149,8 @@ class LooseChessManager {
 	}
 
 
-	updateGameState(skipValidation: boolean = false) {
-		this.game = new Chess(this.game.fen(), {skipValidation});
+	updateGameState() {
+		this.game = new Chess(this.game.fen(), {skipValidation: true});
 	}
 }
 
