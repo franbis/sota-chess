@@ -85,7 +85,7 @@ app.register(async function (fastify) {
 						if (data.name == 'move') {
 							// The piece name may not be a valid piece symbol, interpret it.
 							otherArgs.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
-							gameMan.forceMove(data.arguments as ForceMoveArgs);
+							gameMan.forceMove(otherArgs as ForceMoveArgs);
 							sendGameState(conn);
 							
 							sendExplanationVM(
