@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import fastifyWebsocket, { type WebSocket as WebSocketWrapper } from '@fastify/websocket';
 
-import type { ChessboardSquareData, Message, MoveMsgContent } from '../../shared/types/chess.types';
+import type { ChessboardSquareData, Message, Move } from '../../shared/types/chess.types';
 import { MessageType } from '../../shared/data/chess.data';
 
-import { LooseChessManager, type ForceMoveArgs } from './chess/chess_managers';
+import { LooseChessManager, type ForceMoveArgs, type MoveArgs } from './chess/chess_managers';
 import { OpenAIChessPlayer } from './ai/openai_ai';
 import type { ExplainedMoveArgs } from './ai/ai';
 
@@ -20,14 +20,15 @@ app.register(fastifyWebsocket);
 let gameMan: LooseChessManager;
 let ai: OpenAIChessPlayer;
 
+let lastMove: Move | undefined;
+
 
 function sendGameState(connection: WebSocketWrapper) {
 	const msg: Message = {
 		type: MessageType.STATE,
 		content: {
 			fen: gameMan.game.fen(),
-			isCheck: gameMan.game.isCheck(),
-			isCheckmate: gameMan.game.isCheckmate()
+			lastMove
 		}
 	};
 	connection.send(JSON.stringify(msg));
@@ -68,10 +69,8 @@ app.register(async function (fastify) {
 			}
 
 			if (msg.type === MessageType.MOVE) {
-				const moved = gameMan.move({
-					sourceSquare: msg.content.sourceSquare,
-					targetSquare: msg.content.targetSquare
-				});
+				const moved = gameMan.move(msg.content);
+				lastMove = msg.content;
 
 				if (moved) {
 					sendGameState(conn);
@@ -86,6 +85,7 @@ app.register(async function (fastify) {
 							// The piece name may not be a valid piece symbol, interpret it.
 							otherArgs.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
 							gameMan.forceMove(otherArgs as ForceMoveArgs);
+							lastMove = otherArgs as Pick<ForceMoveArgs, keyof Move>;
 							sendGameState(conn);
 							
 							sendExplanationVM(

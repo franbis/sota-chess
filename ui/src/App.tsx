@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import type { Color } from 'chess.js';
+import type { Color, Square } from 'chess.js';
 import { Chessboard, type PieceDropHandlerArgs, type PieceHandlerArgs } from 'react-chessboard';
 
-import type { GameStateMsgContent } from '../../shared/types/chess.types';
+import type { GameState, GameStateMsgContent } from '../../shared/types/chess.types';
 
 import { RemoteChessManager, type MoveArgs } from './script/chess/chess_managers';
 
@@ -14,7 +14,9 @@ import './style/App.sass';
 function App() {
 	const [gameMan, setGameMan] = useState<RemoteChessManager | null>(null);
 	const [color, setColor] = useState<Color>('w');
-	const [fen, setFen] = useState('');
+	const [gameState, setGameState] = useState<GameState | null>(null);
+
+	const boardContRef = useRef<HTMLDivElement | null>(null);
 
 
 	const canDragPiece = ({ isSparePiece, piece, square }: PieceHandlerArgs)=>{
@@ -34,17 +36,38 @@ function App() {
 	useEffect(()=>{
 		setGameMan(() => new RemoteChessManager({
 			onConnect(instance) { instance.createGame({ color }); },
-			onStateChange: (game) => setFen(game.fen())
+			onStateChange: state => setGameState(state ?? null)
 		}));
 	}, []);
 
 
+	// Handle square elements on game state changes.
+	useEffect(() => {
+		if (boardContRef.current) {
+				const squares = [
+					...boardContRef.current.querySelectorAll('div[data-square]')
+				] as HTMLDivElement[];
+
+			if (gameState?.lastMove) {
+				// Toggle styling based on the last move squares.
+				const lastMoveSquares: Square[] = Object.values(gameState?.lastMove ?? {});
+				for (const s of squares) {
+					if (lastMoveSquares.includes(s.dataset.square as Square))
+						s.classList.add('last_move');
+					else
+						s.classList.remove('last_move');
+				}
+			}
+		}
+	}, [boardContRef.current, gameState]);
+
+
 	return (
-		<div id="chessboard_cont">
+		<div id='chessboard_cont' ref={boardContRef}>
 				<Chessboard
 					options={{
 						// Default to an empty board.
-						position: fen,
+						position: gameState?.fen ?? '',
 						canDragPiece,
 						onPieceDrop
 					}}
