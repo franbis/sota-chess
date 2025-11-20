@@ -14,7 +14,7 @@ import './style/App.sass';
 function App() {
 	const [gameMan, setGameMan] = useState<RemoteChessManager | null>(null);
 	const [color, setColor] = useState<Color>('w');
-	const [gameState, setGameState] = useState<GameStateMsgContent | null>()
+	const [fen, setFen] = useState('');
 
 
 	const canDragPiece = ({ isSparePiece, piece, square }: PieceHandlerArgs)=>{
@@ -24,18 +24,17 @@ function App() {
 
 
 	const onPieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs)=>{
-		// Inform the server of the move attempt.
-		gameMan?.move({ sourceSquare, targetSquare} as MoveArgs);
-
-		// Simulate the move until the server validates it.
-		return true;
+		if (!gameMan) return false;
+		
+		const moved = gameMan.move({ sourceSquare, targetSquare} as MoveArgs);
+		return moved;
 	};
 
 
 	useEffect(()=>{
 		setGameMan(() => new RemoteChessManager({
 			onConnect(instance) { instance.createGame({ color }); },
-			onStateChange: setGameState
+			onStateChange: (game) => setFen(game.fen())
 		}));
 	}, []);
 
@@ -45,7 +44,7 @@ function App() {
 				<Chessboard
 					options={{
 						// Default to an empty board.
-						position: gameState?.fen ?? '',
+						position: fen,
 						canDragPiece,
 						onPieceDrop
 					}}

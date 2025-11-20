@@ -40,6 +40,7 @@ app.register(async function (fastify) {
 				gameMan = new LooseChessManager();
 				sendGameState(conn);
 				ai = new OpenAIChessPlayer({
+					// TODO - Use externally defined settings.
 					apiKey: 'TODO',
 					TTSModel: 'TODO',
 					funcCallModel: 'TODO',
