@@ -1,19 +1,14 @@
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
-import type { CastlingSide } from "../../../shared/types/chess.types";
+import type { CastlingSide, Move } from "../../../shared/types/chess.types";
 
 
 
-interface MoveArgs {
-	sourceSquare: Square,
-	targetSquare: Square
-}
+interface MoveArgs extends Move {}
 
-interface ForceMoveArgs {
-	pieceType: PieceSymbol,
-	sourceSquare: Square,
-	targetSquare: Square
+interface ForceMoveArgs extends MoveArgs {
+	pieceType: PieceSymbol
 }
 
 interface CastleArgs {

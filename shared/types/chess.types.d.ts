@@ -16,10 +16,14 @@ type ChessboardSquareData = {
 } | null;
 
 
+interface Move {
+	sourceSquare: Square,
+	targetSquare: Square
+}
+
 interface GameState {
 	fen: string
-	isCheck: boolean
-	isCheckmate: boolean
+	lastMove?: Move
 }
 
 
@@ -34,10 +38,7 @@ interface CreateGameMsgContent {
     color: Color
 }
 
-interface MoveMsgContent {
-	sourceSquare: Square
-	targetSquare: Square
-}
+interface MoveMsgContent extends Move {}
 
 interface CastleMsgContent {
 	side: CastlingSide
@@ -57,6 +58,7 @@ type Message =
 export {
     type CastlingSide,
 	type ChessboardSquareData,
+	type Move,
 	type GameState,
 
 	type GameStateMsgContent,

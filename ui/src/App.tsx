@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Color } from 'chess.js';
 import { Chessboard, type PieceDropHandlerArgs, type PieceHandlerArgs } from 'react-chessboard';
 
-import type { GameStateMsgContent } from '../../shared/types/chess.types';
+import type { GameState, GameStateMsgContent } from '../../shared/types/chess.types';
 
 import { RemoteChessManager, type MoveArgs } from './script/chess/chess_managers';
 
@@ -14,7 +14,7 @@ import './style/App.sass';
 function App() {
 	const [gameMan, setGameMan] = useState<RemoteChessManager | null>(null);
 	const [color, setColor] = useState<Color>('w');
-	const [fen, setFen] = useState('');
+	const [gameState, setGameState] = useState<GameState | null>(null);
 
 
 	const canDragPiece = ({ isSparePiece, piece, square }: PieceHandlerArgs)=>{
@@ -34,9 +34,20 @@ function App() {
 	useEffect(()=>{
 		setGameMan(() => new RemoteChessManager({
 			onConnect(instance) { instance.createGame({ color }); },
-			onStateChange: (game) => setFen(game.fen())
+			onStateChange: state => setGameState(state ?? null)
 		}));
 	}, []);
+
+
+	let squareStyles = {};
+	if (gameState?.lastMove) {
+		squareStyles = Object.values(gameState?.lastMove ?? {}).reduce((acc, k) => {
+			acc[k] = {
+				backgroundColor: '#8cff1847'
+			}
+			return acc;
+		}, {});
+	}
 
 
 	return (
@@ -44,9 +55,10 @@ function App() {
 				<Chessboard
 					options={{
 						// Default to an empty board.
-						position: fen,
+						position: gameState?.fen ?? '',
 						canDragPiece,
-						onPieceDrop
+						onPieceDrop,
+						squareStyles
 					}}
 				/>
 		</div>

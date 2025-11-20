@@ -1,6 +1,6 @@
 import { Chess, type Color, type Square } from "chess.js";
 
-import type { GameStateMsgContent, Message } from '../../../../shared/types/chess.types';
+import type { GameState, GameStateMsgContent, Message } from '../../../../shared/types/chess.types';
 import { MessageType } from "../../../../shared/data/chess.data";
 
 import { b64ToArrBuff } from '../../../../shared/script/utils/b64_utils';
@@ -20,7 +20,7 @@ interface MoveArgs {
 
 interface RemoteChessManagerArgs {
     onConnect?: (instance: RemoteChessManager) => void
-    onStateChange?: (game: Chess) => void
+    onStateChange?: (state?: GameState) => void
 }
 class RemoteChessManager {
     private game?: Chess;
@@ -42,7 +42,7 @@ class RemoteChessManager {
             const msg: Message = JSON.parse(String(e.data));
 
 			if (msg.type === MessageType.STATE) {
-				this.updateGameState(msg.content.fen);
+				this.updateGameState(msg.content);
 			}
 
 			if (msg.type === MessageType.EXPLANATION) {
@@ -71,11 +71,11 @@ class RemoteChessManager {
     }
 
 
-    updateGameState(fen?: string) {
+    updateGameState(state?: GameState) {
         // 'skipValidation' must be 'true', otherwise no moves can be done
         // if there are invalid positions or pieces.
-		this.game = new Chess(fen, {skipValidation: true});
-        this._onStateChange?.(this.game);
+		this.game = new Chess(state?.fen, {skipValidation: true});
+        this._onStateChange?.(state);
 	}
 
 
@@ -95,7 +95,10 @@ class RemoteChessManager {
             // The move was invalid, don't contact the server.
             return false;
         }
-		this.updateGameState(this.game?.fen());
+		this.updateGameState({
+            fen: this.game.fen(),
+            lastMove: {sourceSquare, targetSquare}
+        });
 
         const params: Message = {
             type: MessageType.MOVE,
