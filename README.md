@@ -19,13 +19,9 @@ Currently the game is in its prototype phase, it is missing the pawn promotion f
 If you want to run the game anyway, here are the steps:
 
 * Run `npm ci` in the *root* directory.
-
 * Set your *OpenAI* API key and the model names in `server.tsx`.
-<br>
-**NOTE**: If you want *ChatGPT 5* capabilities without long delays from from reasoning, you can use *ChatGPT 5.1*, which has `reasoning` disabled by default.
-
+    * **NOTE**: If you want *ChatGPT 5* capabilities without long delays from from reasoning, you can use *ChatGPT 5.1*, which has `reasoning` disabled by default.
 * Run `npm run dev` in `/server`.
-
 * Run `npm run dev` in `/ui`.
 
 By default, the **UI** is accessible at `http://localhost:5173/`
