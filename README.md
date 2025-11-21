@@ -22,6 +22,6 @@ If you want to run the game anyway, here are the steps
 * Set your *OpenAI* API key and the model names in `server.tsx`.
     * **NOTE**: If you want *ChatGPT 5* capabilities without long delays from from reasoning, you can use *ChatGPT 5.1*, which has `reasoning` disabled by default.
 * Build the project by running `npm run build`.
-* Run by running `node server.js` from `/dist`.
+* Start the server by running `node server.js` from `/dist`.
 
 By default, the **UI** is accessible at `http://localhost:3000/`
