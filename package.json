@@ -2,9 +2,9 @@
   "name": "sota-chess",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rimraf dist && npm run build -w server -w ui"
   },
   "author": "",
   "license": "",
@@ -15,17 +15,11 @@
   ],
   "dependencies": {
     "chess.js": "^1.4.0",
-    "openai": "^6.9.1",
-    "react": "^19.2.0",
-    "react-chessboard": "^5.8.3",
-    "react-dom": "^19.2.0",
-    "sass": "^1.93.3"
+    "rimraf": "^6.1.2"
   },
   "devDependencies": {
     "server": "^1.0.0",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "ui": "^1.0.0",
-    "vite": "^7.2.2"
+    "ui": "^1.0.0"
   }
 }

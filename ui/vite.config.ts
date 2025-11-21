@@ -1,3 +1,5 @@
+import path from 'path';
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -8,6 +10,8 @@ const STRICT_MODE = process.env['STRICT_MODE'] === '1'
 
 console.log(`\nDEBUG: ${DEBUG}\n`);
 
+const distName = 'dist';
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,4 +20,8 @@ export default defineConfig({
 		__DEBUG__: DEBUG,
 		__STRICT_MODE__: STRICT_MODE,
 	},
+	build: {
+		emptyOutDir: false,
+		outDir: path.join(__dirname, '..', distName, 'public')
+	}
 })
