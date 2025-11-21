@@ -13,6 +13,12 @@
 	border-radius: .5em
 
 
+[id^="chessboard-square"]
+	&.last_move
+		>div
+			background-color: #8cff1847
+			
+
 [id^="chessboard-piece"]
 	&[style*="cursor: pointer"]
 		/*
@@ -20,8 +26,7 @@
 			non-draggable pieces
 		cursor: default !important
 
+	&[data-piece$="K"]
+		&.checked
+			filter: drop-shadow(0 0 .5em #ff0000c9) drop-shadow(0 0 .5em #ff0000c9)
 
-[id^="chessboard-square"]
-	&.last_move
-		>div
-			background-color: #8cff1847

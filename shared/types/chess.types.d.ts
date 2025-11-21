@@ -23,7 +23,9 @@ interface Move {
 
 interface GameState {
 	fen: string
-	lastMove?: Move
+	lastMove?: Move,
+	isCheck: boolean,
+	isCheckmate: boolean
 }
 
 

@@ -6,7 +6,7 @@ import { MessageType } from '../../shared/data/chess.data';
 
 import { LooseChessManager, type ForceMoveArgs, type MoveArgs } from './chess/chess_managers';
 import { OpenAIChessPlayer } from './ai/openai_ai';
-import type { ExplainedMoveArgs } from './ai/ai';
+import type { AIMoveArgs } from './ai/ai';
 
 import { arrBuffToB64 } from '../../shared/script/utils/b64_utils';
 
@@ -23,12 +23,14 @@ let ai: OpenAIChessPlayer;
 let lastMove: Move | undefined;
 
 
-function sendGameState(connection: WebSocketWrapper) {
+function sendGameState(connection: WebSocketWrapper, isCheck?: boolean, isCheckmate?: boolean) {
 	const msg: Message = {
 		type: MessageType.STATE,
 		content: {
 			fen: gameMan.game.fen(),
-			lastMove
+			lastMove,
+			isCheck: isCheck ?? gameMan.game.isCheck(),
+			isCheckmate: isCheckmate ?? gameMan.game.isCheckmate()
 		}
 	};
 	connection.send(JSON.stringify(msg));
@@ -78,15 +80,18 @@ app.register(async function (fastify) {
 					// It's the AI's turn now, request a move.
 					(async ()=>{
 						const data = await ai.requestMove(gameMan.game.board() as ChessboardSquareData[][]);
-						// Assume the arguments contain the 'explanation' key.
-						const { explanation, ...otherArgs } = data.arguments as ExplainedMoveArgs;
+						// Assume the arguments contain all the keys from 'AIMove'.
+						const {
+							explanation, isCheck, isCheckmate,
+							...otherArgs
+						} = data.arguments as AIMoveArgs;
 
 						if (data.name == 'move') {
 							// The piece name may not be a valid piece symbol, interpret it.
 							otherArgs.pieceType = ai.pieceNameToSymbol(data.arguments.pieceType);
 							gameMan.forceMove(otherArgs as ForceMoveArgs);
 							lastMove = otherArgs as Pick<ForceMoveArgs, keyof Move>;
-							sendGameState(conn);
+							sendGameState(conn, isCheck, isCheckmate);
 							
 							sendExplanationVM(
 								conn,

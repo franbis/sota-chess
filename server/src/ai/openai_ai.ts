@@ -5,7 +5,7 @@ import { FunctionCallNotFound } from "../data/errors";
 
 import funcTools from "./func_tools";
 import type { FunctionCallData } from "../data/func_call_data";
-import type { AIChessPlayerArgs, ExplainedMoveArgs } from "./ai";
+import type { AIChessPlayerArgs, AIMoveArgs } from "./ai";
 import { AIChessPlayer } from "./ai";
 
 import type { ChessboardSquareData } from "../../../shared/types/chess.types";
@@ -85,7 +85,7 @@ class OpenAIChessPlayer extends AIChessPlayer<OpenAI> {
 
 		const item = response.output[0];
 		if (item.type == "function_call") {
-			const args: ExplainedMoveArgs = JSON.parse(item.arguments);
+			const args: AIMoveArgs = JSON.parse(item.arguments);
 			return {
 				name: item.name,
 				arguments: args

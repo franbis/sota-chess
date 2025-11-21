@@ -19,6 +19,15 @@ function App() {
 	const boardContRef = useRef<HTMLDivElement | null>(null);
 
 
+	/**
+	 * Return the color of the king who's in check according to
+	 * the game logic or to the AI if there's no logical check.
+	 */
+	const getLooseCheckColor = () => {
+		return gameMan?.checkedColor ?? (gameState?.isCheck ? color : null);
+	}
+
+
 	const canDragPiece = ({ isSparePiece, piece, square }: PieceHandlerArgs)=>{
 		// Allow only the user's pieces to be dragged.
 		return piece.pieceType[0] === color;
@@ -47,6 +56,9 @@ function App() {
 				const squares = [
 					...boardContRef.current.querySelectorAll('div[data-square]')
 				] as HTMLDivElement[];
+				const kings = [
+					...boardContRef.current.querySelectorAll('div[data-piece$="K"]')
+				] as HTMLDivElement[];
 
 			if (gameState?.lastMove) {
 				// Toggle styling based on the last move squares.
@@ -57,6 +69,13 @@ function App() {
 					else
 						s.classList.remove('last_move');
 				}
+			}
+
+			for (const k of kings) {
+				if (getLooseCheckColor() === k.dataset.piece?.charAt(0))
+					k.classList.add('checked');
+				else
+					k.classList.remove('checked');
 			}
 		}
 	}, [boardContRef.current, gameState]);
