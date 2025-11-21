@@ -1,5 +1,9 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import Fastify from 'fastify';
 import fastifyWebsocket, { type WebSocket as WebSocketWrapper } from '@fastify/websocket';
+import fastifyStatic from '@fastify/static';
 
 import type { ChessboardSquareData, Message, Move } from '../../shared/types/chess.types';
 import { MessageType } from '../../shared/data/chess.data';
@@ -15,6 +19,10 @@ import { arrBuffToB64 } from '../../shared/script/utils/b64_utils';
 const app = Fastify({ logger: true });
 
 app.register(fastifyWebsocket);
+app.register(fastifyStatic, {
+  root: path.join(__dirname, 'public'),
+  index: 'index.html'
+});
 
 
 let gameMan: LooseChessManager;
