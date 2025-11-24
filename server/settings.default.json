@@ -1,0 +1,14 @@
+{
+    "general": {
+        "verbose": false
+    },
+    "game": {},
+    "ai": {
+        "player": {
+            "model": "gpt-4.1-nano"
+        },
+        "voice": {
+            "model": "gpt-4o-mini-tts"
+        }
+    }
+}

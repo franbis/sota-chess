@@ -17,4 +17,10 @@ build({
   target: 'node20',
   outfile: path.join(distPath, 'server.js'),
   format: 'cjs'
-}).catch(() => process.exit(1));
+}).then(() => {
+  // Copy the default settings file.
+  const src = path.join(__dirname, 'settings.default.json');
+  const dst = path.join(distPath, 'settings.json');
+  fs.copyFileSync(src, dst);
+})
+.catch(() => process.exit(1));

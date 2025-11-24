@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 import Fastify from 'fastify';
@@ -16,7 +17,31 @@ import { arrBuffToB64 } from '../../shared/script/utils/b64_utils';
 
 
 
-const app = Fastify({ logger: true });
+if (!process.env.OPENAI_API_KEY) {
+	console.info('The OPENAI_API_KEY environment variable could not be found.');
+	process.exit(1);
+}
+
+const settingsPath = process.env.SETTINGS_PATH
+	? process.env.SETTINGS_PATH
+	: path.join(__dirname, 'settings.json')
+;
+let settings: Record<string, any>;
+try {
+	settings = JSON.parse(fs.readFileSync( settingsPath, 'utf-8' ));
+}
+catch (e) {
+	if ((e as NodeJS.ErrnoException).code === "ENOENT")
+		console.info('The settings file could not be found.');
+	else if (e instanceof SyntaxError)
+		console.info('The settings file could not be parsed.');
+	else
+		throw e;
+
+	process.exit(1);
+}
+
+const app = Fastify({ logger: settings.verbose });
 
 app.register(fastifyWebsocket);
 app.register(fastifyStatic, {
@@ -70,10 +95,9 @@ app.register(async function (fastify) {
 				gameMan = new LooseChessManager();
 				sendGameState(conn);
 				ai = new OpenAIChessPlayer({
-					// TODO - Use externally defined settings.
-					apiKey: 'TODO',
-					TTSModel: 'TODO',
-					funcCallModel: 'TODO',
+					apiKey: process.env.OPENAI_API_KEY as string,
+					TTSModel: settings.ai.voice.model,
+					funcCallModel: settings.ai.player.model,
 					color: 'b'
 				});
 			}
