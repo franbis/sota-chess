@@ -1,3 +1,17 @@
+@keyframes wobble
+	0%
+		transform: rotate(0deg)
+	25%
+		transform: rotate(-5deg)
+	50%
+		transform: rotate(5deg)
+	75%
+		transform: rotate(-5deg)
+	100%
+		transform: rotate(5deg)
+
+
+
 #chessboard_cont
 	position: relative
 	width: 100%
@@ -16,18 +30,24 @@
 [id^="chessboard-square"]
 	&.avail_move
 		>div
-			//box-shadow: inset 0 0 .75em #0000009e
-
 			&::after
 				content: ""
 				position: absolute
-				width: 1em
-				height: 1em
 				top: 50%
 				left: 50%
 				transform: translate3d(-50%, -50%, 0)
-				border-radius: 100%
 				background-color: #49843c99
+
+			&:empty::after
+				width: 1em
+				height: 1em
+				border-radius: 100%
+
+			&:not(:empty)
+				svg
+					filter: drop-shadow(0 0 .2em #54b33f)
+					animation: wobble 1.5s ease-in-out infinite alternate
+					
 
 	&.last_move
 		>div
@@ -44,4 +64,3 @@
 	&[data-piece$="K"]
 		&.checked
 			filter: drop-shadow(0 0 .5em #ff0000c9) drop-shadow(0 0 .5em #ff0000c9)
-
