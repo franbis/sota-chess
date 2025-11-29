@@ -1,9 +1,10 @@
-import { Chess, type Color, type Square } from "chess.js";
+import { Chess, type Color, type Piece, type Square } from "chess.js";
 
 import type { GameState, GameStateMsgContent, Message } from '../../../../shared/types/chess.types';
 import { MessageType } from "../../../../shared/data/chess.data";
 
 import { b64ToArrBuff } from '../../../../shared/script/utils/b64_utils';
+import type { PieceDataType } from "react-chessboard";
 
 
 
@@ -82,6 +83,11 @@ class RemoteChessManager {
 		this.game = new Chess(state?.fen, {skipValidation: true});
         this._onStateChange?.(state);
 	}
+
+
+    getAvailMoves(square: Square) {
+        return this.game?.moves({square, verbose: true}).map(m => m.to) ?? [];
+    }
 
 
     move({ sourceSquare, targetSquare }: MoveArgs) {

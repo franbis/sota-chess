@@ -15,6 +15,7 @@ function App() {
 	const [gameMan, setGameMan] = useState<RemoteChessManager | null>(null);
 	const [color, setColor] = useState<Color>('w');
 	const [gameState, setGameState] = useState<GameState | null>(null);
+	const [availMoves, setAvailMoves] = useState<Square[]>([]);
 
 	const boardContRef = useRef<HTMLDivElement | null>(null);
 
@@ -34,7 +35,15 @@ function App() {
 	};
 
 
+	const onPieceDrag = ({ isSparePiece, piece, square }: PieceHandlerArgs) => {
+		const moves = gameMan?.getAvailMoves(square as Square) ?? [];
+		setAvailMoves(moves);
+	};
+
+
 	const onPieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs)=>{
+		setAvailMoves([]);
+
 		if (!gameMan) return false;
 		
 		const moved = gameMan.move({ sourceSquare, targetSquare} as MoveArgs);
@@ -60,6 +69,14 @@ function App() {
 					...boardContRef.current.querySelectorAll('div[data-piece$="K"]')
 				] as HTMLDivElement[];
 
+			// Style available move squares for the piece which is being dragged.
+			for (const s of squares) {
+				if (availMoves.includes(s.dataset.square as Square))
+					s.classList.add('avail_move');
+				else
+					s.classList.remove('avail_move');
+			}
+
 			if (gameState?.lastMove) {
 				// Toggle styling based on the last move squares.
 				const lastMoveSquares: Square[] = Object.values(gameState?.lastMove ?? {});
@@ -71,6 +88,7 @@ function App() {
 				}
 			}
 
+			// Style any king who's in check.
 			for (const k of kings) {
 				if (getLooseCheckColor() === k.dataset.piece?.charAt(0))
 					k.classList.add('checked');
@@ -78,7 +96,7 @@ function App() {
 					k.classList.remove('checked');
 			}
 		}
-	}, [boardContRef.current, gameState]);
+	}, [boardContRef.current, gameState, availMoves]);
 
 
 	return (
@@ -88,6 +106,7 @@ function App() {
 						// Default to an empty board.
 						position: gameState?.fen ?? '',
 						canDragPiece,
+						onPieceDrag,
 						onPieceDrop
 					}}
 				/>
