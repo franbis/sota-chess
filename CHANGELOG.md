@@ -2,6 +2,11 @@
 
 <br>
 
+### 0.1.3 (2025-11-29)
+
+* Use external server settings
+* Read secrets from the environment
+
 ### 0.1.2 (2025-11-21)
 
 * Configure packages for building
